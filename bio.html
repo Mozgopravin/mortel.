@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mortel.</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        @font-face {
+            font-family: 'GTA Russian';
+            src: url('https://fonts-online.ru/fonts/gta-russian/GTA-Russian-Regular.woff2') format('woff2'),
+                 url('https://fonts-online.ru/fonts/gta-russian/GTA-Russian-Regular.woff') format('woff'),
+                 url('https://fonts-online.ru/fonts/gta-russian/GTA-Russian-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Фоновое изображение с размытием */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://github.com/Mozgopravin/Mozgopravin/raw/0097d3e38395132eca985433455c1f221773167f/assets/My%20wife%20(1work)%401%2C5x.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(5px) brightness(0.3);
+            z-index: -2;
+        }
+        
+        /* Particles.js контейнер */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        #particles-js.visible {
+            opacity: 1;
+        }
+        
+      
+        
+        /* Экран входа */
+        .enter-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #2d0036;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+        }
+        
+        .enter-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .enter-logo {
+            font-size: 80px;
+            font-weight: 700;
+            color: #a800ff;
+            text-shadow: 0 0 20px #c800ff;
+            margin-bottom: 40px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .enter-text {
+            color: #aa00ff;
+            font-size: 18px;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+        
+        .enter-button {
+            background: rgba(200, 0, 255, 0.1);
+            border: 2px solid #c800ff;
+            color: #c800ff;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .enter-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(200, 0, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .enter-button:hover::before {
+            left: 100%;
+        }
+        
+        .enter-button:hover {
+            background: rgba(200, 0, 255, 0.2);
+            box-shadow: 0 0 30px rgba(200, 0, 255, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .enter-button:active {
+            transform: scale(0.95);
+        }
+        
+        /* Фон */
+        .bg-abstract {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 60% 40%, #c800ff2f 0%, #2d00369a 60%),
+                        radial-gradient(circle at 30% 70%, #8d003b4f 0%, #2d00369f 70%);
+            z-index: -1;
+        }
+        
+        /* Основной контент */
+        .main-content {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+            z-index: 1;
+        }
+        
+        .main-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Карточка */
+        .center-card {
+            background: rgba(121, 6, 156, 0.1);
+            border: 1px solid rgba(159, 7, 206, 0.5);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            transition: 
+                opacity 0.8s ease, 
+                transform 0.8s ease;
+        }
+
+        .center-card.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #c800ff;
+            box-shadow: 0 0 38px 0px #c800ff;
+            margin: 0 auto 18px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .nickname {
+            font-family: 'GTA Russian', 'Montserrat', Arial, sans-serif;
+            font-size: 60px;
+            font-weight: 0;
+            color: #a800ff;
+            margin-bottom: 8px;
+            text-shadow: 0 0 8px #c800ff99;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 8px #c800ff99; }
+            50% { text-shadow: 0 0 10px #c800ff5e, 0 0 15px #c800ff75; }
+        }
+        
+        .divider {
+            width: 80%;
+            margin: 12px auto 18px;
+            border: none;
+            border-top: 2px dashed #aa00ff98;
+        }
+        
+        .subtitle {
+            color: #aa00ff;
+            font-size: 1.3em;
+            margin-bottom: 18px;
+            letter-spacing: 5px;
+        }
+        
+        .socials {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 18px;
+        }
+        
+        .social-btn {
+            color: #a800ff;
+            font-size: 2.1em;
+            text-decoration: none;
+            text-shadow: 0 0 16px #c800ff99;
+            transition: all 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            color: #fff;
+            text-shadow: 0 0 32px #c800ff;
+            transform: translateY(-3px) scale(1.1);
+        }
+        
+        .views {
+            color: #fff8;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Плеер */
+        .music-player {
+            background: rgba(121, 6, 156, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(159, 7, 206, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            max-width: 600px;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            transform: translateY(30px) scale(0.9);
+            transition: 
+                opacity 0.8s ease, 
+                transform 0.8s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .music-player.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        .music-cover {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-right: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .music-cover:hover {
+            transform:scale(1.05);
+        }
+        
+        .music-info {
+            flex: 1;
+        }
+        
+        .music-title {
+            font-size: 14px;
+            font-weight: 4px;
+            color: #fff;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .music-artist {
+            color: #ffffff;
+            font-weight: 500;
+        }
+        
+        .music-bar {
+            width: 100%;
+            height: 4px;
+            background: #a800ff44;
+            border-radius: 2px;
+            margin-bottom: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .music-bar-progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #d72660, #c800ff);
+            border-radius: 2px;
+            transition: width 0.1s ease;
+            position: relative;
+        }
+        
+        .music-bar-progress::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 8px rgba(200, 0, 255, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .music-bar:hover .music-bar-progress::after {
+            opacity: 1;
+        }
+        
+        .music-bar-progress.playing {
+            width: 0%;
+        }
+        
+        .music-time {
+            color: #fff8;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .music-controls {
+            display: flex;
+            gap: 10px;
+            margin-left: 16px;
+        }
+        
+        .music-controls span {
+            color: #a800ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .music-controls span:hover {
+            color: #c800ff;
+            transform: scale(1.2);
+            background: rgba(168, 0, 255, 0.1);
+            box-shadow: 0 0 15px rgba(168, 0, 255, 0.3);
+        }
+        
+        .music-controls span:active {
+            transform: scale(0.95);
+        }
+        
+        .music-controls span:first-child,
+        .music-controls span:last-child {
+            opacity: 0.7;
+        }
+        
+        .music-controls span:first-child:hover,
+        .music-controls span:last-child:hover {
+            opacity: 1;
+        }
+        
+        @media (max-width: 600px) {
+            .enter-logo { font-size: 60px; }
+            .center-card, .music-player { 
+                padding: 24px 20px; 
+            }
+            .nickname { 
+                font-size: 48px; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Экран входа -->
+    <div class="enter-screen" id="enterScreen">
+        <button class="enter-button" id="enterButton">Click to Enter</button>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="bg-abstract"></div>
+    
+    <div class="main-content" id="mainContent">
+        <!-- Particles.js -->
+        <div id="particles-js"></div>
+        
+        <div class="center-card" id="centerCard">
+            <img class="avatar" src="https://avatars.githubusercontent.com/u/74500024?s=400&u=338b921622990b5ef97892e7049aadf72ffb3dba&v=4" alt="mozgopravin">
+            <div class="nickname">mortel.</div>
+            <hr class="divider">
+            <div class="subtitle">social links</div>
+            <div class="socials">
+                <a class="social-btn" href="https://t.me/lizzmins" target="_blank" title="Telegram channel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19c-.14.75-.42 1-.68 1.03c-.58.05-1.02-.38-1.58-.75c-.88-.58-1.38-.94-2.23-1.5c-.99-.65-.35-1.01.22-1.59c.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02c-.09.02-1.49.95-4.22 2.79c-.4.27-.76.41-1.08.4c-.36-.01-1.04-.2-1.55-.37c-.63-.2-1.12-.31-1.08-.66c.02-.18.27-.36.74-.55c2.92-1.27 4.86-2.11 5.83-2.51c2.78-1.16 3.35-1.36 3.73-1.36c.08 0 .27.02.39.12c.1.08.13.19.14.27c-.01.06.01.24 0 .38"/></svg>
+                </a>
+              
+            </div>
+            <hr class="divider">
+            <div class="views">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity="0" d="M12 8c0 0 0 0 0.76 -1c0.88 -1.16 2.18 -2 3.74 -2c2.49 0 4.5 2.01 4.5 4.5c0 0.93 -0.28 1.79 -0.76 2.5c-0.81 1.21 -8.24 9 -8.24 9c0 0 -7.43 -7.79 -8.24 -9c-0.48 -0.71 -0.76 -1.57 -0.76 -2.5c0 -2.49 2.01 -4.5 4.5 -4.5c1.56 0 2.87 0.84 3.74 2c0.76 1 0.76 1 0.76 1Z"><animate fill="freeze" attributeName="fill-opacity" begin="1.05s" dur="0.75s" values="0;1"/></path><path fill="none" stroke="currentColor" stroke-dasharray="32" stroke-dashoffset="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c0 0 0 0 -0.76 -1c-0.88 -1.16 -2.18 -2 -3.74 -2c-2.49 0 -4.5 2.01 -4.5 4.5c0 0.93 0.28 1.79 0.76 2.5c0.81 1.21 8.24 9 8.24 9M12 8c0 0 0 0 0.76 -1c0.88 -1.16 2.18 -2 3.74 -2c2.49 0 4.5 2.01 4.5 4.5c0 0.93 -0.28 1.79 -0.76 2.5c-0.81 1.21 -8.24 9 -8.24 9"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.05s" values="32;0"/></path></svg>
+                mozgopravin
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" fill-opacity="0" d="M12 8c0 0 0 0 0.76 -1c0.88 -1.16 2.18 -2 3.74 -2c2.49 0 4.5 2.01 4.5 4.5c0 0.93 -0.28 1.79 -0.76 2.5c-0.81 1.21 -8.24 9 -8.24 9c0 0 -7.43 -7.79 -8.24 -9c-0.48 -0.71 -0.76 -1.57 -0.76 -2.5c0 -2.49 2.01 -4.5 4.5 -4.5c1.56 0 2.87 0.84 3.74 2c0.76 1 0.76 1 0.76 1Z"><animate fill="freeze" attributeName="fill-opacity" begin="1.05s" dur="0.75s" values="0;1"/></path><path fill="none" stroke="currentColor" stroke-dasharray="32" stroke-dashoffset="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c0 0 0 0 -0.76 -1c-0.88 -1.16 -2.18 -2 -3.74 -2c-2.49 0 -4.5 2.01 -4.5 4.5c0 0.93 0.28 1.79 0.76 2.5c0.81 1.21 8.24 9 8.24 9M12 8c0 0 0 0 0.76 -1c0.88 -1.16 2.18 -2 3.74 -2c2.49 0 4.5 2.01 4.5 4.5c0 0.93 -0.28 1.79 -0.76 2.5c-0.81 1.21 -8.24 9 -8.24 9"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.05s" values="32;0"/></path></svg>
+            </div>
+        </div>
+        
+        <div class="music-player" id="musicPlayer">
+            <img class="music-cover" src="https://avatars.yandex.net/get-music-content/14728505/ce48926f.a.36962390-2/m1000x1000" alt="cover">
+            <div class="music-info">
+                <div class="music-title">name - <span class="music-artist">artist</span></div>
+                <div class="music-bar">
+                    <div class="music-bar-progress" id="musicProgress"></div>
+                </div>
+                <div class="music-time">
+                    <span id="currentTime">0:00</span>
+                    <span id="totalTime">0:00</span>
+                </div>
+            </div>
+            <div class="music-controls">
+                <span id="prevBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                    </svg>
+                </span>
+                <span id="playPauseBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </span>
+                <span id="nextBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                    </svg>
+                </span>
+            </div>
+        </div>
+        
+        <!-- Аудио элемент -->
+        <audio id="audioPlayer" preload="metadata">
+            <source src="https://storage9.lightaudio.ru/dm/39a297a6/3bb5093a/FORTUNA%20812%20%E2%80%94%20ww%20basedgod%20life.mp3?d=113&v=3e9f5b6007" type="audio/mpeg">
+            Ваш браузер не поддерживает аудио элемент.
+        </audio>
+    </div>
+
+    <script>
+        // Плейлист с треками
+        const playlist = [
+            {
+                title: "ww basedgod life",
+                artist: "FORTUNA 812",
+                cover: "https://avatars.yandex.net/get-music-content/14728505/ce48926f.a.36962390-2/m1000x1000",
+                audio: "https://storage9.lightaudio.ru/dm/39a297a6/3bb5093a/FORTUNA%20812%20%E2%80%94%20ww%20basedgod%20life.mp3?d=113&v=3e9f5b6007"
+            },
+            {
+                title: "Olympus",
+                artist: "@suffocated",
+                cover: "https://avatars.yandex.net/get-music-content/15401259/02116467.a.36172135-1/m1000x1000",
+                audio: "https://storage4.lightaudio.ru/dm/39a22daa/3bb509c3/%40suffocated%20%E2%80%94%20Olympus.mp3"
+            },
+          
+        ];
+
+        class EnterSystem {
+            constructor() {
+                // Получаем элементы
+                this.enterScreen = document.querySelector('.enter-screen');
+                this.enterButton = document.querySelector('.enter-button');
+                this.mainContent = document.getElementById('mainContent');
+                this.centerCard = document.getElementById('centerCard');
+                this.musicPlayer = document.getElementById('musicPlayer');
+                this.musicProgress = document.getElementById('musicProgress');
+                this.playPauseBtn = document.getElementById('playPauseBtn');
+                this.prevBtn = document.getElementById('prevBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.currentTimeSpan = document.getElementById('currentTime');
+                this.totalTimeSpan = document.getElementById('totalTime');
+                this.audioPlayer = document.getElementById('audioPlayer');
+                this.musicTitle = document.querySelector('.music-title');
+                this.musicCover = document.querySelector('.music-cover');
+                
+                // Плейлист
+                this.playlist = playlist;
+                this.currentTrackIndex = 0;
+                this.isShuffle = true;
+                
+                // Проверяем, что все элементы найдены
+                console.log('Проверка элементов:');
+                console.log('enterScreen:', this.enterScreen);
+                console.log('enterButton:', this.enterButton);
+                console.log('mainContent:', this.mainContent);
+                console.log('centerCard:', this.centerCard);
+                console.log('musicPlayer:', this.musicPlayer);
+                console.log('musicProgress:', this.musicProgress);
+                console.log('playPauseBtn:', this.playPauseBtn);
+                console.log('prevBtn:', this.prevBtn);
+                console.log('nextBtn:', this.nextBtn);
+                console.log('currentTimeSpan:', this.currentTimeSpan);
+                console.log('totalTimeSpan:', this.totalTimeSpan);
+                console.log('audioPlayer:', this.audioPlayer);
+                console.log('musicTitle:', this.musicTitle);
+                console.log('musicCover:', this.musicCover);
+                
+                this.isPlaying = false;
+                this.currentTime = 0; // секунды
+                this.totalTime = 0; // секунды
+                
+                this.init();
+            }
+            
+            init() {
+                console.log('Инициализация EnterSystem...');
+                
+                // Проверяем, что все необходимые элементы существуют
+                if (!this.enterScreen || !this.enterButton) {
+                    console.error('Не найдены элементы экрана входа!');
+                    return;
+                }
+                
+                if (!this.mainContent || !this.centerCard || !this.musicPlayer) {
+                    console.error('Не найдены основные элементы!');
+                    return;
+                }
+                
+                if (!this.playPauseBtn || !this.prevBtn || !this.nextBtn) {
+                    console.error('Не найдены кнопки управления!');
+                    return;
+                }
+                
+                if (!this.audioPlayer) {
+                    console.error('Не найден аудио элемент!');
+                    return;
+                }
+                
+                console.log('Все элементы найдены, добавляем обработчики...');
+                
+                // Обработчик кнопки входа
+                this.enterButton.addEventListener('click', () => {
+                    console.log('Кнопка "Click to Enter" нажата');
+                    this.enterSite();
+                });
+                
+                // Обработчик кнопки воспроизведения
+                this.playPauseBtn.addEventListener('click', () => {
+                    console.log('Кнопка Play/Pause нажата');
+                    this.togglePlayPause();
+                });
+
+                // Обработчики для плеера
+                this.prevBtn.addEventListener('click', () => {
+                    console.log('Кнопка "Назад" нажата');
+                    this.prevTrack();
+                });
+                
+                this.nextBtn.addEventListener('click', () => {
+                    console.log('Кнопка "Вперед" нажата');
+                    this.nextTrack();
+                });
+
+                // Обработчик для аудио
+                this.audioPlayer.addEventListener('timeupdate', () => this.updateTime());
+                this.audioPlayer.addEventListener('ended', () => {
+                    console.log('Трек закончился, переключаем на следующий');
+                    this.nextTrack();
+                });
+                this.audioPlayer.addEventListener('loadedmetadata', () => {
+                    console.log('Аудио метаданные загружены');
+                    this.updateTime();
+                });
+                
+                console.log('Обработчики добавлены успешно!');
+            }
+            
+            enterSite() {
+                // Скрываем экран входа
+                this.enterScreen.classList.add('hidden');
+                
+                // Показываем основной контент
+                this.mainContent.classList.add('visible');
+                
+                // Выбираем случайный трек и запускаем музыку
+                this.selectRandomTrack();
+                this.startMusic();
+                
+                // Запускаем анимации появления элементов
+                setTimeout(() => {
+                    this.centerCard.classList.add('visible');
+                }, 300);
+                
+                setTimeout(() => {
+                    this.musicPlayer.classList.add('visible');
+                    
+                    // Обновляем UI плеера если музыка уже играет
+                    if (this.isPlaying) {
+                        this.playPauseBtn.innerHTML = `
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                            </svg>
+                        `;
+                        this.musicProgress.classList.add('playing');
+                    }
+                }, 800);
+                
+                // Инициализируем Particles.js с задержкой
+                setTimeout(() => {
+                    if (!particlesStarField) {
+                        particlesStarField = new ParticlesStarField();
+                    }
+                    particlesStarField.init();
+                }, 1200);
+            }
+            
+            // Выбор случайного трека
+            selectRandomTrack() {
+                this.currentTrackIndex = Math.floor(Math.random() * this.playlist.length);
+                this.loadTrack(this.currentTrackIndex);
+                console.log(`Выбран случайный трек: ${this.currentTrackIndex} - ${this.playlist[this.currentTrackIndex].title}`);
+            }
+            
+            // Загрузка трека по индексу
+            loadTrack(index) {
+                if (index < 0 || index >= this.playlist.length) return;
+                
+                const track = this.playlist[index];
+                this.currentTrackIndex = index;
+                
+                // Обновляем аудио источник
+                this.audioPlayer.src = track.audio;
+                
+                // Обновляем информацию о треке
+                this.musicTitle.innerHTML = `${track.title} - <span class="music-artist">${track.artist}</span>`;
+                this.musicCover.src = track.cover;
+                
+                console.log(`Загружен трек: ${track.title} - ${track.artist}`);
+            }
+            
+            startMusic() {
+                this.isPlaying = true;
+                
+                // Обновляем иконку кнопки если плеер уже виден
+                if (this.playPauseBtn) {
+                    this.playPauseBtn.innerHTML = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                    `;
+                }
+                
+                // Обновляем прогресс-бар если он уже виден
+                if (this.musicProgress) {
+                    this.musicProgress.classList.add('playing');
+                }
+                
+                // Автоматически запускаем воспроизведение аудио
+                this.audioPlayer.play().catch(error => {
+                    console.log('Ошибка воспроизведения:', error);
+                    // Если не удалось воспроизвести, симулируем воспроизведение
+                    this.simulatePlayback();
+                });
+            }
+            
+            togglePlayPause() {
+                if (this.isPlaying) {
+                    this.pauseMusic();
+        } else {
+                    this.resumeMusic();
+                }
+            }
+            
+            pauseMusic() {
+                this.isPlaying = false;
+                this.playPauseBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                `;
+                this.musicProgress.style.animationPlayState = 'paused';
+                
+                // Пауза аудио
+                this.audioPlayer.pause();
+            }
+            
+            resumeMusic() {
+                this.isPlaying = true;
+                this.playPauseBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                `;
+                this.musicProgress.style.animationPlayState = 'running';
+                
+                // Возобновление аудио
+                this.audioPlayer.play().catch(error => {
+                    console.log('Ошибка воспроизведения:', error);
+                    this.simulatePlayback();
+                });
+            }
+
+            // Методы для управления плеером
+            prevTrack() {
+                console.log('Предыдущий трек');
+                let newIndex = this.currentTrackIndex - 1;
+                if (newIndex < 0) {
+                    newIndex = this.playlist.length - 1; // Переходим к последнему треку
+                }
+                this.loadTrack(newIndex);
+                
+                // Если музыка играет, продолжаем воспроизведение
+                if (this.isPlaying) {
+                    this.audioPlayer.play().catch(error => {
+                        console.log('Ошибка воспроизведения:', error);
+                    });
+                }
+            }
+
+            nextTrack() {
+                console.log('Следующий трек');
+                let newIndex = this.currentTrackIndex + 1;
+                if (newIndex >= this.playlist.length) {
+                    newIndex = 0; // Переходим к первому треку
+                }
+                this.loadTrack(newIndex);
+                
+                // Если музыка играет, продолжаем воспроизведение
+                if (this.isPlaying) {
+                    this.audioPlayer.play().catch(error => {
+                        console.log('Ошибка воспроизведения:', error);
+                    });
+                }
+            }
+
+            // seek(e) { // Удален метод seek
+            //     const rect = this.musicProgress.getBoundingClientRect();
+            //     const clickX = e.clientX - rect.left;
+            //     const progressBarWidth = rect.width;
+            //     const seekTime = (clickX / progressBarWidth) * this.totalTime;
+            //     this.audioPlayer.currentTime = seekTime;
+            //     this.updateTime();
+            // }
+
+            updateTime() {
+                // Проверяем, что аудио загружено и время доступно
+                if (this.audioPlayer.duration && !isNaN(this.audioPlayer.duration)) {
+                    this.currentTime = Math.floor(this.audioPlayer.currentTime) || 0;
+                    this.totalTime = Math.floor(this.audioPlayer.duration) || 0;
+                    
+                    this.currentTimeSpan.textContent = this.formatTime(this.currentTime);
+                    this.totalTimeSpan.textContent = this.formatTime(this.totalTime);
+                    
+                    // Обновляем прогресс-бар только если трек загружен
+                    if (this.totalTime > 0) {
+                        this.musicProgress.style.width = `${(this.currentTime / this.totalTime) * 100}%`;
+                    }
+                } else {
+                    // Если аудио не загружено, показываем 0:00
+                    this.currentTimeSpan.textContent = '--:--';
+                    this.totalTimeSpan.textContent = '--:--';
+                    this.musicProgress.style.width = '0%';
+                }
+            }
+
+            formatTime(seconds) {
+                // Проверяем, что seconds является числом и не NaN
+                if (isNaN(seconds) || !isFinite(seconds) || seconds < 0) {
+                    return '0:00';
+                }
+                
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+            }
+            
+            // Симуляция воспроизведения если аудио недоступно
+            simulatePlayback() {
+                if (!this.isPlaying) return;
+                
+                this.currentTime += 1;
+                const track = this.playlist[this.currentTrackIndex];
+                const maxTime = 180; // 3 минуты по умолчанию
+                
+                if (this.currentTime > maxTime) {
+                    this.currentTime = 0;
+                    this.nextTrack(); // Переключаем на следующий трек
+                    return;
+                }
+                
+                this.currentTimeSpan.textContent = this.formatTime(this.currentTime);
+                this.totalTimeSpan.textContent = this.formatTime(maxTime);
+                this.musicProgress.style.width = `${(this.currentTime / maxTime) * 100}%`;
+                
+                setTimeout(() => this.simulatePlayback(), 1000);
+            }
+        }
+        
+        // Запускаем систему
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM загружен, запускаем EnterSystem...');
+            const enterSystem = new EnterSystem();
+        });
+
+        // Particles.js звездное небо
+        class ParticlesStarField {
+            constructor() {
+                this.isInitialized = false;
+            }
+            
+            init() {
+                if (this.isInitialized) return;
+                
+                // Показываем контейнер
+                const container = document.getElementById('particles-js');
+                if (container) {
+                    container.classList.add('visible');
+                }
+                
+                // Конфигурация для звездного неба
+                const config = {
+                    particles: {
+                        number: {
+                            value: 150,
+                            density: {
+                                enable: true,
+                                value_area: 800
+                            }
+                        },
+                        color: {
+                            value: "#ffffff"
+                        },
+                        shape: {
+                            type: "circle"
+                        },
+                        opacity: {
+                            value: 0.5,
+                            random: true,
+                            anim: {
+                                enable: true,
+                                speed: 1,
+                                opacity_min: 0.1,
+                                sync: false
+                            }
+                        },
+                        size: {
+                            value: 2,
+                            random: true,
+                            anim: {
+                                enable: true,
+                                speed: 2,
+                                size_min: 0.1,
+                                sync: false
+                            }
+                        },
+                        line_linked: {
+                            enable: false
+                        },
+                        move: {
+                            enable: true,
+                            speed: 0.3,
+                            direction: "none",
+                            random: false,
+                            straight: false,
+                            out_mode: "out",
+                            bounce: false
+                        }
+                    },
+                    interactivity: {
+                        detect_on: "canvas",
+                        events: {
+                            onhover: {
+                                enable: false
+                            },
+                            onclick: {
+                                enable: false
+                            },
+                            resize: true
+                        }
+                    },
+                    retina_detect: true
+                };
+                
+                // Инициализируем Particles.js
+                if (typeof particlesJS !== 'undefined') {
+                    particlesJS('particles-js', config);
+                } else {
+                    console.error('Particles.js не найден!');
+                }
+                
+                this.isInitialized = true;
+            }
+        }
+        
+        // Инициализируем Particles.js
+        let particlesStarField = null;
+    </script>
+</body>
+</html>
